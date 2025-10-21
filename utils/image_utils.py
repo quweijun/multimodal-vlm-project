@@ -1,112 +1,118 @@
 """
-文本处理工具
+图像处理工具
 """
 
-import re
-import jieba
-from typing import List, Dict, Any
-from collections import Counter
+import cv2
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+from typing import List, Tuple, Optional
+import base64
+from io import BytesIO
 
-class TextUtils:
-    """文本工具类"""
+class ImageUtils:
+    """图像工具类"""
     
     @staticmethod
-    def clean_text(text: str) -> str:
+    def resize_image(image: Image.Image, 
+                    max_size: Tuple[int, int] = (1024, 1024),
+                    keep_ratio: bool = True) -> Image.Image:
         """
-        清理文本
+        调整图像大小
         
         Args:
-            text: 输入文本
+            image: 输入图像
+            max_size: 最大尺寸 (宽, 高)
+            keep_ratio: 是否保持宽高比
             
         Returns:
-            清理后的文本
+            调整后的图像
         """
-        # 移除多余空白字符
-        text = re.sub(r'\s+', ' ', text)
-        # 移除特殊字符
-        text = re.sub(r'[^\w\s\u4e00-\u9fff]', '', text)
-        return text.strip()
+        if keep_ratio:
+            image.thumbnail(max_size, Image.Resampling.LANCZOS)
+        else:
+            image = image.resize(max_size, Image.Resampling.LANCZOS)
+        
+        return image
     
     @staticmethod
-    def extract_keywords(text: str, top_k: int = 10) -> List[str]:
-        """
-        提取关键词（中文）
-        
-        Args:
-            text: 输入文本
-            top_k: 返回前k个关键词
-            
-        Returns:
-            关键词列表
-        """
-        # 使用jieba进行分词
-        words = jieba.cut(text)
-        
-        # 过滤停用词和短词
-        stop_words = {'的', '了', '在', '是', '我', '有', '和', '就', '不', '人', '都', '一', '一个', '上', '也', '很', '到', '说', '要', '去', '你', '会', '着', '没有', '看', '好', '自己', '这'}
-        filtered_words = [word for word in words if len(word) > 1 and word not in stop_words]
-        
-        # 统计词频
-        word_freq = Counter(filtered_words)
-        
-        return [word for word, freq in word_freq.most_common(top_k)]
+    def pil_to_cv2(pil_image: Image.Image) -> np.ndarray:
+        """PIL图像转OpenCV格式"""
+        return cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
     
     @staticmethod
-    def calculate_similarity(text1: str, text2: str) -> float:
-        """
-        计算文本相似度（基于Jaccard相似度）
-        
-        Args:
-            text1: 文本1
-            text2: 文本2
-            
-        Returns:
-            相似度得分 (0-1)
-        """
-        words1 = set(jieba.cut(text1))
-        words2 = set(jieba.cut(text2))
-        
-        intersection = words1 & words2
-        union = words1 | words2
-        
-        return len(intersection) / len(union) if union else 0
+    def cv2_to_pil(cv2_image: np.ndarray) -> Image.Image:
+        """OpenCV图像转PIL格式"""
+        return Image.fromarray(cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB))
     
     @staticmethod
-    def split_into_sentences(text: str) -> List[str]:
-        """
-        将文本分割成句子
-        
-        Args:
-            text: 输入文本
-            
-        Returns:
-            句子列表
-        """
-        # 简单的中文句子分割
-        sentences = re.split(r'[。！？!?]', text)
-        return [s.strip() for s in sentences if s.strip()]
+    def image_to_base64(image: Image.Image, format: str = "JPEG") -> str:
+        """图像转base64字符串"""
+        buffered = BytesIO()
+        image.save(buffered, format=format)
+        return base64.b64encode(buffered.getvalue()).decode()
     
     @staticmethod
-    def analyze_response_quality(response: str, 
-                               min_length: int = 10) -> Dict[str, Any]:
+    def base64_to_image(base64_string: str) -> Image.Image:
+        """base64字符串转图像"""
+        image_data = base64.b64decode(base64_string)
+        return Image.open(BytesIO(image_data))
+    
+    @staticmethod
+    def add_text_to_image(image: Image.Image, 
+                         text: str,
+                         position: Tuple[int, int] = (10, 10),
+                         font_size: int = 20,
+                         color: Tuple[int, int, int] = (255, 255, 255)) -> Image.Image:
         """
-        分析回复质量
+        在图像上添加文本
         
         Args:
-            response: 模型回复
-            min_length: 最小有效长度
+            image: 输入图像
+            text: 要添加的文本
+            position: 文本位置
+            font_size: 字体大小
+            color: 文本颜色
             
         Returns:
-            质量分析结果
+            添加文本后的图像
         """
-        sentences = TextUtils.split_into_sentences(response)
-        keywords = TextUtils.extract_keywords(response)
+        draw = ImageDraw.Draw(image)
         
-        return {
-            "length": len(response),
-            "sentence_count": len(sentences),
-            "keyword_count": len(keywords),
-            "is_meaningful": len(response) >= min_length,
-            "has_multiple_sentences": len(sentences) > 1,
-            "keywords": keywords
-        }
+        try:
+            font = ImageFont.truetype("arial.ttf", font_size)
+        except:
+            font = ImageFont.load_default()
+        
+        draw.text(position, text, fill=color, font=font)
+        return image
+    
+    @staticmethod
+    def create_image_grid(images: List[Image.Image], 
+                         grid_size: Tuple[int, int] = None) -> Image.Image:
+        """
+        创建图像网格
+        
+        Args:
+            images: 图像列表
+            grid_size: 网格尺寸 (列数, 行数)
+            
+        Returns:
+            网格图像
+        """
+        if not grid_size:
+            grid_size = (int(np.ceil(np.sqrt(len(images)))), 
+                        int(np.ceil(np.sqrt(len(images)))))
+        
+        cols, rows = grid_size
+        width, height = images[0].size
+        
+        grid_image = Image.new('RGB', (cols * width, rows * height))
+        
+        for i, img in enumerate(images):
+            if i >= cols * rows:
+                break
+            row = i // cols
+            col = i % cols
+            grid_image.paste(img, (col * width, row * height))
+        
+        return grid_image

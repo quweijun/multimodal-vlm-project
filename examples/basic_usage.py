@@ -6,9 +6,9 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from models import QwenVLWrapper
-from inference import VisualGrounding, SpatialReasoning
-from utils import ImageUtils
+from models.qwen_vl_wrapper import QwenVLWrapper
+from inference.visual_grounding import VisualGrounding, SpatialReasoning
+from utils.image_utils import ImageUtils
 
 def basic_chat_demo():
     """基础对话演示"""

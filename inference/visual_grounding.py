@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 from typing import List, Tuple, Optional, Dict, Any
 
-from ..models import QwenVLWrapper
+from ../models/qwen import QwenVLWrapper
 
 class VisualGrounding:
     """视觉定位类"""
