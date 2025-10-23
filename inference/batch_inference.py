@@ -9,7 +9,7 @@ import json
 from concurrent.futures import ThreadPoolExecutor
 import os
 
-from ..models import QwenVLWrapper
+from models.qwen_vl_wrapper import QwenVLWrapper
 
 class BatchInference:
     """批量推理类"""

@@ -70,7 +70,7 @@ def batch_processing_demo():
     """批量处理演示"""
     print("=== 批量处理演示 ===")
     
-    from inference import BatchInference
+    from inference.batch_inference import BatchInference
     
     model = QwenVLWrapper()
     batch_processor = BatchInference(model)
