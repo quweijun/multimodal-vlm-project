@@ -5,7 +5,7 @@
 from typing import List, Dict, Any, Optional
 from PIL import Image
 
-from ..models import QwenVLWrapper
+from models.qwen_vl_wrapper import QwenVLWrapper
 
 class SpatialReasoning:
     """空间推理类"""

@@ -7,7 +7,8 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from models.qwen_vl_wrapper import QwenVLWrapper
-from inference.visual_grounding import VisualGrounding, SpatialReasoning
+from inference.visual_grounding import VisualGrounding
+from inference.spatial_reasoning import SpatialReasoning
 from utils.image_utils import ImageUtils
 
 def basic_chat_demo():
