@@ -7,9 +7,10 @@ import sys
 import json
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from models import QwenVLWrapper
-from training import LoRATrainer
-from data import MultimodalDataset, DataPreprocessor
+from models.qwen_vl_wrapper import QwenVLWrapper
+from training.lora_trainer import LoRATrainer
+from data.dataset_loader import MultimodalDataset
+from data.data_preprocessor import DataPreprocessor
 
 def prepare_sample_data():
     """准备示例训练数据"""

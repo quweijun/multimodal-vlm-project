@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "image_path": "data/sample_data/demo_images/train1.jpg",
+    "question": "这张图片的主要内容是什么？",
+    "answer": "这是一张风景照片，展示了美丽的山脉和湖泊。"
+  },
+  {
+    "id": 2,
+    "image_path": "data/sample_data/demo_images/train2.jpg",
+    "question": "图片中有多少人？",
+    "answer": "图片中有三个人，他们正在交谈。"
+  },
+  {
+    "id": 3,
+    "image_path": "data/sample_data/demo_images/train3.jpg",
+    "question": "这是什么动物？",
+    "answer": "这是一只猫，它正在睡觉。"
+  }
+]

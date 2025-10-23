@@ -1,0 +1,44 @@
+[
+  {
+    "id": 0,
+    "image_path": "data/sample_data/demo_images/img1.jpg",
+    "conversations": [
+      {
+        "from": "human",
+        "value": "<image>\n描述这张图片"
+      },
+      {
+        "from": "gpt",
+        "value": "这是一张美丽的风景照片"
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "image_path": "data/sample_data/demo_images/img2.jpg",
+    "conversations": [
+      {
+        "from": "human",
+        "value": "<image>\n图片中的主要物体是什么？"
+      },
+      {
+        "from": "gpt",
+        "value": "主要物体是山脉和树木"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "image_path": "data/sample_data/demo_images/img3.jpg",
+    "conversations": [
+      {
+        "from": "human",
+        "value": "<image>\n这是什么场景？"
+      },
+      {
+        "from": "gpt",
+        "value": "这是一个自然风光场景"
+      }
+    ]
+  }
+]

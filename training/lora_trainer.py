@@ -8,9 +8,10 @@ from transformers import Trainer, TrainingArguments
 from datasets import Dataset
 from typing import Optional, Dict, Any
 
-from ..data import MultimodalDataset, DataCollator
-from ..models import QwenVLWrapper
-from ..configs import get_lora_config, MultimodalTrainingConfig
+from data.dataset_loader import MultimodalDataset, DataCollator
+from models.qwen_vl_wrapper import QwenVLWrapper
+from configs.model_config import get_lora_config
+from configs.training_config import MultimodalTrainingConfig
 
 class LoRATrainer:
     """LoRA微调训练器"""
