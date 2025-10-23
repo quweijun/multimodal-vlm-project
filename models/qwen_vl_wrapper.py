@@ -3,7 +3,7 @@ Qwen-VL模型封装
 """
 
 import torch
-from transformers import Qwen2VLForConditionalGeneration, AutoProcessor
+from transformers import Qwen3VLForConditionalGeneration, AutoProcessor
 from PIL import Image
 from typing import List, Dict, Optional, Union
 import warnings
@@ -29,7 +29,8 @@ class QwenVLWrapper:
         
         # 加载模型和处理器
         self.processor = AutoProcessor.from_pretrained(model_name)
-        self.model = Qwen2VLForConditionalGeneration.from_pretrained(
+        # self.model = Qwen2VLForConditionalGeneration.from_pretrained(
+        self.model = Qwen3VLForConditionalGeneration.from_pretrained(
             model_name,
             torch_dtype=torch_dtype,
             device_map=device,
