@@ -69,6 +69,8 @@ class WebDemo:
             # 获取图像描述
             caption = self.model.image_captioning(image_path)
             
+            print(f"图像描述: {caption}")
+
             # 场景布局分析
             layout = self.reasoning.analyze_scene_layout(image_path)
             
