@@ -34,9 +34,11 @@ class WebDemo:
             image_path = image
         else:
             # 处理上传的图像
-            temp_dir = tempfile.gettempdir()
+            #temp_dir = tempfile.gettempdir()
+            temp_dir = "/content/multimodal-vlm-project/tmp/"
             image_path = os.path.join(temp_dir, "temp_image.jpg")
             image.save(image_path)
+            print(image_path)
         
         try:
             # 获取模型回复
@@ -58,7 +60,8 @@ class WebDemo:
             return "请先上传图像"
         
         # 保存临时图像
-        temp_dir = tempfile.gettempdir()
+        #temp_dir = tempfile.gettempdir()
+        temp_dir = "/content/multimodal-vlm-project/tmp/"
         image_path = os.path.join(temp_dir, "temp_analyze.jpg")
         image.save(image_path)
         
