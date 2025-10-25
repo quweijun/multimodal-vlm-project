@@ -10,8 +10,9 @@ import gradio as gr
 import tempfile
 from PIL import Image
 
-from models import QwenVLWrapper
-from inference import VisualGrounding, SpatialReasoning
+from models.qwen_vl_wrapper import QwenVLWrapper
+from inference.visual_grounding import VisualGrounding
+from inference.spatial_reasoning import SpatialReasoning
 
 class WebDemo:
     """Web演示类"""
