@@ -101,6 +101,7 @@ def interactive_grounding_demo():
 def visualization_demo():
     """可视化演示"""
     print("=== 可视化演示 ===")
+    #函数单独调用时加上以下两行
     model = QwenVLWrapper()
     grounding = VisualGrounding(model)
     # 创建示例图像
