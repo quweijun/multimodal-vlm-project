@@ -101,7 +101,8 @@ def interactive_grounding_demo():
 def visualization_demo():
     """可视化演示"""
     print("=== 可视化演示 ===")
-    
+    model = QwenVLWrapper()
+    grounding = VisualGrounding(model)
     # 创建示例图像
     width, height = 800, 600
     image = Image.new('RGB', (width, height), color='lightblue')
@@ -120,7 +121,9 @@ def visualization_demo():
     colors = [(0, 255, 0), (255, 0, 0), (0, 0, 255)]
     
     # 绘制边界框
+    print("Boxes:", boxes)
     result_image = grounding.draw_bounding_boxes(cv_image, boxes, labels, colors)
+    #result_image = grounding.draw_bounding_boxes(cv_image, boxes, labels, colors)
     
     # 保存结果
     output_path = "output/visualization_demo.jpg"
@@ -132,7 +135,7 @@ def performance_benchmark():
     print("=== 性能基准测试 ===")
     
     import time
-    from inference import BatchInference
+    from inference.batch_inference import BatchInference
     
     model = QwenVLWrapper()
     batch_processor = BatchInference(model, max_workers=2)
@@ -169,7 +172,7 @@ if __name__ == "__main__":
     os.makedirs("output", exist_ok=True)
     
     # 运行演示
-    visual_grounding_comprehensive_demo()
-    interactive_grounding_demo()
+    # visual_grounding_comprehensive_demo()
+    # interactive_grounding_demo()
     visualization_demo()
     performance_benchmark()

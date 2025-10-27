@@ -57,6 +57,7 @@ class VisualGrounding:
                           boxes: List[Tuple[int, int, int, int]],
                           labels: List[str],
                           colors: Optional[List[Tuple[int, int, int]]] = None) -> np.ndarray:
+        print("boxes:",boxes)
         """
         在图像上绘制边界框
         
@@ -73,8 +74,9 @@ class VisualGrounding:
             colors = [(0, 255, 0)] * len(boxes)  # 默认绿色
         
         img_with_boxes = image.copy()
-        
+        print("boxes:",boxes)
         for box, label, color in zip(boxes, labels, colors):
+            print("box:",box)
             x1, y1, x2, y2 = box
             
             # 绘制边界框
