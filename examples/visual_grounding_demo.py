@@ -10,9 +10,14 @@ import cv2
 import numpy as np
 from PIL import Image
 
-from models import QwenVLWrapper
-from inference import VisualGrounding, SpatialReasoning
-from utils import ImageUtils
+from models.qwen_vl_wrapper import QwenVLWrapper
+from inference.visual_grounding import VisualGrounding
+from inference.spatial_reasoning import SpatialReasoning
+from utils.image_utils import ImageUtils
+
+# from models import QwenVLWrapper
+# from inference import VisualGrounding, SpatialReasoning
+# from utils import ImageUtils
 
 def visual_grounding_comprehensive_demo():
     """综合视觉定位演示"""
