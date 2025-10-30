@@ -27,14 +27,13 @@ class WebDemo:
     def chat_interface(self, image, question, history):
         """聊天界面"""
         if image is None:
-            return "请先上传图像", history
+            return "请先上传图像", history, gr.update(interactive=True)
         
         # 保存临时图像
         if isinstance(image, str):
             image_path = image
         else:
             # 处理上传的图像
-            #temp_dir = tempfile.gettempdir()
             temp_dir = "/content/multimodal-vlm-project/tmp/"
             image_path = os.path.join(temp_dir, "temp_image.jpg")
             image.save(image_path)
@@ -47,37 +46,38 @@ class WebDemo:
             # 更新历史
             history.append((question, response))
             
-            return "", history
+            return "", history, gr.update(interactive=True)
         
         except Exception as e:
             error_msg = f"处理错误: {str(e)}"
             history.append((question, error_msg))
-            return "", history
+            return "", history, gr.update(interactive=True)
     
     def analyze_image(self, image):
-        print("分析图片")
+        print("分析图像")
         """分析图像"""
         if image is None:
-            return "请先上传图像"
+            return "请先上传图像", gr.update(interactive=True)
         
         # 保存临时图像
-        #temp_dir = tempfile.gettempdir()
         temp_dir = "/content/multimodal-vlm-project/tmp/"
         image_path = os.path.join(temp_dir, "temp_analyze.jpg")
         image.save(image_path)
         
         try:
-            # step1 获取图像描述 
+            # 获取图像描述
             caption = self.model.image_captioning(image_path)
             
             print(f"图像描述: {caption}")
 
-            # step2 场景布局分析
-            layout = self.reasoning.analyze_scene_layout(image_path)
-            
-            # step3 深度估计
-            depth = self.reasoning.depth_estimation(image_path)
-            
+            # 场景布局分析
+            #layout = self.reasoning.analyze_scene_layout(image_path)
+            layout="场景布局分析"
+
+            # 深度估计
+            #depth = self.reasoning.depth_estimation(image_path)
+            depth="深度估计"
+
             result = f"""## 图像分析结果
 
 ### 图像描述:
@@ -89,16 +89,27 @@ class WebDemo:
 ### 深度关系分析:
 {depth}
 """
-            return result
+            return result, gr.update(interactive=True)
         
         except Exception as e:
-            return f"分析错误: {str(e)}"
+            return f"分析错误: {str(e)}", gr.update(interactive=True)
+
+    def create_processing_state(self):
+        """创建处理状态"""
+        return (
+            gr.update(interactive=False, value="处理中..."),  # submit_btn
+            gr.update(interactive=False, value="分析中..."),  # analyze_btn
+            gr.update(value="🔄 正在处理中，请稍候...")  # status
+        )
     
     def create_demo(self):
         """创建演示界面"""
         with gr.Blocks(title="多模态视觉语言模型演示", theme=gr.themes.Soft()) as demo:
             gr.Markdown("# 🎯 多模态视觉语言模型演示")
             gr.Markdown("基于 Qwen-VL 的视觉问答、图像描述和空间推理演示")
+            
+            # 状态提示
+            status = gr.Markdown("", elem_id="status")
             
             with gr.Tab("💬 对话演示"):
                 with gr.Row():
@@ -113,8 +124,9 @@ class WebDemo:
                             placeholder="请输入关于图像的问题...",
                             lines=3
                         )
-                        submit_btn = gr.Button("发送", variant="primary")
-                        clear_btn = gr.Button("清空")
+                        with gr.Row():
+                            submit_btn = gr.Button("发送", variant="primary")
+                            clear_btn = gr.Button("清空")
                     
                     with gr.Column(scale=2):
                         chatbot = gr.Chatbot(
@@ -124,14 +136,17 @@ class WebDemo:
                 
                 # 事件绑定
                 submit_btn.click(
+                    self.create_processing_state,
+                    outputs=[submit_btn, submit_btn, status]  # 使用submit_btn两次来保持一致性
+                ).then(
                     self.chat_interface,
                     inputs=[image_input, question_input, chatbot],
-                    outputs=[question_input, chatbot]
+                    outputs=[question_input, chatbot, submit_btn]
                 )
                 
                 clear_btn.click(
-                    lambda: (None, "", []),
-                    outputs=[image_input, question_input, chatbot]
+                    lambda: (None, "", [], gr.update(value="")),
+                    outputs=[image_input, question_input, chatbot, status]
                 )
             
             with gr.Tab("🔍 图像分析"):
@@ -150,9 +165,12 @@ class WebDemo:
                         )
                 
                 analyze_btn.click(
+                    self.create_processing_state,
+                    outputs=[analyze_btn, analyze_btn, status]  # 使用analyze_btn两次来保持一致性
+                ).then(
                     self.analyze_image,
                     inputs=[analyze_image_input],
-                    outputs=[analysis_output]
+                    outputs=[analysis_output, analyze_btn]
                 )
             
             with gr.Tab("📚 使用说明"):
@@ -163,11 +181,13 @@ class WebDemo:
                 - 上传一张图像
                 - 在文本框中输入问题
                 - 点击"发送"获取模型回答
+                - 处理过程中按钮会禁用并显示处理状态
                 
                 ### 🔍 图像分析
                 - 上传一张图像
                 - 点击"分析图像"获取详细分析
                 - 包括图像描述、场景布局和深度关系
+                - 处理过程中按钮会禁用并显示处理状态
                 
                 ### 支持的问题类型:
                 - 图像内容描述

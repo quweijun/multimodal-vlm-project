@@ -7,6 +7,7 @@ from transformers import Qwen3VLForConditionalGeneration, AutoProcessor
 from PIL import Image
 from typing import List, Dict, Optional, Union
 import warnings
+from datetime import datetime
 
 class QwenVLWrapper:
     """Qwen-VL模型封装类"""
@@ -58,7 +59,9 @@ class QwenVLWrapper:
         Returns:
             模型回复
         """
-        # 加载图像
+        # 加载图像,
+        stepTime1 = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(f"step1:{stepTime1}")
         if isinstance(image, str):
             image = Image.open(image).convert('RGB')
         
@@ -72,14 +75,14 @@ class QwenVLWrapper:
                 ]
             }
         ]
-        
+        print(f"step2:{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         # 应用聊天模板
         formatted_text = self.processor.apply_chat_template(
             messages, 
             tokenize=False, 
             add_generation_prompt=True
         )
-        
+        print(f"step3:{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         # 处理输入
         inputs = self.processor(
             text=[formatted_text],
@@ -87,28 +90,43 @@ class QwenVLWrapper:
             padding=True,
             return_tensors="pt"
         ).to(self.model.device)
-        
+        print(f"step4:{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         # 生成回复
+        # with torch.no_grad():
+        #     generated_ids = self.model.generate(
+        #         **inputs,
+        #         max_new_tokens=max_new_tokens,
+        #         do_sample=do_sample,
+        #         temperature=temperature,
+        #         pad_token_id=self.processor.tokenizer.eos_token_id
+        #     )
+        #极生成回复-速模式
         with torch.no_grad():
             generated_ids = self.model.generate(
                 **inputs,
-                max_new_tokens=max_new_tokens,
-                do_sample=do_sample,
-                temperature=temperature,
-                pad_token_id=self.processor.tokenizer.eos_token_id
+                max_new_tokens=min(max_new_tokens, 256),  # 限制生成长度
+                do_sample=False,              # 禁用采样，使用贪心解码
+                num_beams=1,                  # 单beam
+                use_cache=True,               # 启用缓存
+                output_scores=False,          # 不输出分数
+                return_dict_in_generate=False,# 简化返回
+                repetition_penalty=1.0,       # 无重复惩罚
+                length_penalty=1.0,           # 无长度惩罚
+                early_stopping=False,         # 无早停
+                pad_token_id=self.processor.tokenizer.eos_token_id,
             )
-        
+        print(f"step5:{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         # 提取生成的文本
         generated_ids_trimmed = [
             out_ids[len(in_ids):] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
         ]
-        
+        print(f"step6:{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         response = self.processor.batch_decode(
             generated_ids_trimmed,
             skip_special_tokens=True,
             clean_up_tokenization_spaces=False
         )
-        
+        print(f"step7:{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         return response[0]
     
     def batch_chat(self, 
